@@ -1,0 +1,6 @@
+{
+    "prettier.prettierPath": "./node_modules/prettier",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.printWidth": 100
+}
