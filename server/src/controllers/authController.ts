@@ -1,6 +1,11 @@
 import type { Context } from "hono";
 import jwt from "jsonwebtoken";
-import { getUserData, supabase } from "../services/supabaseService";
+import {
+  createUserDocument,
+  getUserData,
+  isUserDocumentExists,
+  supabase,
+} from "../services/supabaseService";
 import { config } from "../config/config";
 import { HTTPException } from "hono/http-exception";
 
@@ -103,6 +108,20 @@ export const authCallback = async (c: Context) => {
       throw new HTTPException(401, {
         message: "Unauthorized",
       });
+    }
+
+    const userDocumentExists = await isUserDocumentExists(
+      userData.user.email || "",
+    );
+
+    if (!userDocumentExists) {
+      console.debug("User document does not exist, creating it");
+      await createUserDocument({
+        email: userData.user.email || "",
+        name: userData.user.user_metadata.name || "",
+      });
+    } else {
+      console.debug("User document already exists");
     }
 
     const userInfo = {

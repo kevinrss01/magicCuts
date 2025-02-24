@@ -123,3 +123,75 @@ export const getProjectDocument = async (documentId: string) => {
     });
   }
 };
+
+export const getProjectsByUserId = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("project_documents")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Error fetching projects by user id", error);
+      throw new HTTPException(500, {
+        message: "Error fetching projects by user id",
+      });
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching projects by user id", error);
+    throw error;
+  }
+};
+
+export const createUserDocument = async ({
+  email,
+  name,
+}: {
+  email: string;
+  name: string;
+}) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ email, name, tokens: 1, is_premium: false }]);
+
+    if (error) {
+      console.error("Error creating user", error);
+      throw new HTTPException(500, {
+        message: "Error creating user",
+      });
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error creating user", error);
+    throw new HTTPException(500, {
+      message: "Error creating user",
+    });
+  }
+};
+
+export const isUserDocumentExists = async (email: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email);
+
+    if (error) {
+      console.error("Error checking if user document exists", error);
+      throw new HTTPException(500, {
+        message: "Error checking if user document exists",
+      });
+    }
+
+    return data.length > 0 ? true : false;
+  } catch (error) {
+    console.error("Error checking if user document exists", error);
+    throw new HTTPException(500, {
+      message: "Error checking if user document exists",
+    });
+  }
+};

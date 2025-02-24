@@ -104,6 +104,7 @@ export class ProjectController {
   }
 
   async getProject(c: Context) {
+    console.log("getProject");
     try {
       const userId = c.get("jwtPayload").user.id;
       const body = await c.req.json();
@@ -121,6 +122,24 @@ export class ProjectController {
         userId,
         projectDocumentId: projectDocumentId,
       });
+      return res;
+    } catch (error) {
+      console.error(error);
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "Internal server error.",
+      });
+    }
+  }
+
+  async getAllProjects(c: Context) {
+    console.log("getAllProjects");
+    try {
+      const userId = c.get("jwtPayload").user.id;
+      const projectService = new ProjectService();
+      const res = await projectService.getAllProjects(userId);
       return res;
     } catch (error) {
       console.error(error);

@@ -1,0 +1,3 @@
+{
+    "prettier.prettierPath": "./server/node_modules/prettier"
+}

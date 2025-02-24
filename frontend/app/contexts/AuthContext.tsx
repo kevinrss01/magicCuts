@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (userId) {
       console.log("userId", userId);
       if (location.pathname === "/login") {
-        navigate("/app");
+        navigate("/");
       }
       return;
     }

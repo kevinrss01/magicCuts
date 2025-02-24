@@ -8,8 +8,9 @@ import {
 } from "@remix-run/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NuqsAdapter } from "nuqs/adapters/remix";
-
+import { useLocation } from "@remix-run/react";
 import "./tailwind.css";
+import NavbarLayout from "components/navbar/NavbarLayout";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,10 +44,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const pathname = useLocation();
+
   return (
     <AuthProvider>
       <NuqsAdapter>
-        <Outlet />
+        {pathname.pathname === "/login" ? (
+          <Outlet />
+        ) : (
+          <NavbarLayout>
+            <Outlet />
+          </NavbarLayout>
+        )}
       </NuqsAdapter>
     </AuthProvider>
   );

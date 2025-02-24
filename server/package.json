@@ -20,7 +20,8 @@
     "hono": "^4.7.2",
     "jsonwebtoken": "^9.0.2",
     "openai": "^4.85.3",
-    "prettier": "^3.5.1"
+    "prettier": "^3.5.1",
+    "stripe": "^17.6.0"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",

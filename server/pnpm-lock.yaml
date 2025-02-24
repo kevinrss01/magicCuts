@@ -50,6 +50,9 @@ importers:
       prettier:
         specifier: ^3.5.1
         version: 3.5.1
+      stripe:
+        specifier: ^17.6.0
+        version: 17.6.0
     devDependencies:
       '@types/jsonwebtoken':
         specifier: ^9.0.9
@@ -683,6 +686,10 @@ packages:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
     engines: {node: '>= 0.4'}
 
+  call-bound@1.0.3:
+    resolution: {integrity: sha512-YTd+6wGlNlPxSuri7Y6X8tY2dmm12UMH66RpKMhiX6rsk5wXXnYgbUcOt8kiS31/AjfoTOvCsE+w8nZQLQnzHA==}
+    engines: {node: '>= 0.4'}
+
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
@@ -870,6 +877,10 @@ packages:
       encoding:
         optional: true
 
+  object-inspect@1.13.4:
+    resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
+    engines: {node: '>= 0.4'}
+
   openai@4.85.3:
     resolution: {integrity: sha512-KTMXAK6FPd2IvsPtglMt0J1GyVrjMxCYzu/mVbCPabzzquSJoZlYpHtE0p0ScZPyt11XTc757xSO4j39j5g+Xw==}
     hasBin: true
@@ -887,6 +898,10 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
+
   readable-stream@3.6.2:
     resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
     engines: {node: '>= 6'}
@@ -902,11 +917,31 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  side-channel-list@1.0.0:
+    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
+    engines: {node: '>= 0.4'}
+
+  side-channel-map@1.0.1:
+    resolution: {integrity: sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==}
+    engines: {node: '>= 0.4'}
+
+  side-channel-weakmap@1.0.2:
+    resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
+    engines: {node: '>= 0.4'}
+
+  side-channel@1.1.0:
+    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
+    engines: {node: '>= 0.4'}
+
   stream-browserify@3.0.0:
     resolution: {integrity: sha512-H73RAHsVBapbim0tU2JwwOiXUj+fikfiaoYAKHF3VJfA0pe2BCzkhAHBlLG6REzE+2WNZcxOXjK7lkso+9euLA==}
 
   string_decoder@1.3.0:
     resolution: {integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==}
+
+  stripe@17.6.0:
+    resolution: {integrity: sha512-+HB6+SManp0gSRB0dlPmXO+io18krlAe0uimXhhIkL/RG/VIRigkfoM3QDJPkqbuSW0XsA6uzsivNCJU1ELEDA==}
+    engines: {node: '>=12.*'}
 
   strnum@1.1.1:
     resolution: {integrity: sha512-O7aCHfYCamLCctjAiaucmE+fHf2DYHkus2OKCn4Wv03sykfFtgeECn505X6K4mPl8CRNd/qurC9guq+ynoN4pw==}
@@ -1979,6 +2014,11 @@ snapshots:
       es-errors: 1.3.0
       function-bind: 1.1.2
 
+  call-bound@1.0.3:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.2.7
+
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
@@ -2182,6 +2222,8 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
+  object-inspect@1.13.4: {}
+
   openai@4.85.3(ws@8.18.1):
     dependencies:
       '@types/node': 18.19.76
@@ -2198,6 +2240,10 @@ snapshots:
 
   prettier@3.5.1: {}
 
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
   readable-stream@3.6.2:
     dependencies:
       inherits: 2.0.4
@@ -2210,6 +2256,34 @@ snapshots:
 
   semver@7.7.1: {}
 
+  side-channel-list@1.0.0:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+
+  side-channel-map@1.0.1:
+    dependencies:
+      call-bound: 1.0.3
+      es-errors: 1.3.0
+      get-intrinsic: 1.2.7
+      object-inspect: 1.13.4
+
+  side-channel-weakmap@1.0.2:
+    dependencies:
+      call-bound: 1.0.3
+      es-errors: 1.3.0
+      get-intrinsic: 1.2.7
+      object-inspect: 1.13.4
+      side-channel-map: 1.0.1
+
+  side-channel@1.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-list: 1.0.0
+      side-channel-map: 1.0.1
+      side-channel-weakmap: 1.0.2
+
   stream-browserify@3.0.0:
     dependencies:
       inherits: 2.0.4
@@ -2218,6 +2292,11 @@ snapshots:
   string_decoder@1.3.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  stripe@17.6.0:
+    dependencies:
+      '@types/node': 20.17.19
+      qs: 6.14.0
 
   strnum@1.1.1: {}
 

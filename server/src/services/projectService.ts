@@ -13,6 +13,7 @@ import {
   createProjectDocument,
   updateProjectDocument,
   getProjectDocument,
+  getProjectsByUserId,
 } from "./supabaseService";
 
 export class ProjectService {
@@ -176,5 +177,11 @@ export class ProjectService {
     );
 
     return res;
+  }
+
+  async getAllProjects(userId: string) {
+  
+    const projects = await getProjectsByUserId(userId);
+    return projects;
   }
 }

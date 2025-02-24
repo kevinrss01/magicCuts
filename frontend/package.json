@@ -19,6 +19,7 @@
     "@heroui/kbd": "2.2.6",
     "@heroui/link": "2.2.7",
     "@heroui/navbar": "2.2.8",
+    "@heroui/react": "^2.7.2",
     "@heroui/snippet": "2.2.10",
     "@heroui/switch": "2.2.8",
     "@heroui/system": "2.4.6",
