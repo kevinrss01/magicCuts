@@ -1,4 +1,4 @@
-import { UserData } from "~/utils/types/user";
+import { ProjectDocument, UserData } from "~/utils/types/supabase";
 import AxiosCallApi from "../axios";
 
 const PREFIX = "auth";
@@ -27,7 +27,10 @@ export class AuthAPI {
       { accessToken: string },
       {
         accessToken: string;
-        userInfo: UserData;
+        userInfo: {
+          userRelativeData: UserData;
+          userDocuments: ProjectDocument[];
+        };
       }
     >(formatSuffix("callback"), {
       accessToken: accessToken,

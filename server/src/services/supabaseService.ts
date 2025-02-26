@@ -38,6 +38,35 @@ export const getUserData = async (userId: string) => {
   }
 };
 
+export const getAllUserData = async (userId: string) => {
+  try {
+    const userRelativeData = await getUserData(userId);
+
+    const { data: userDocuments, error: userDocumentsError } = await supabase
+      .from("project_documents")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (userDocumentsError) {
+      console.error("Error fetching user documents", userDocumentsError);
+      throw userDocumentsError;
+    }
+
+    return {
+      userRelativeData,
+      userDocuments,
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error("Error fetching all user data", error);
+    throw new HTTPException(500, {
+      message: "Error fetching all user data",
+    });
+  }
+};
+
 // Mise à jour de la fonction pour insérer un document dans la table :
 // Ajoutez les paramètres userId, originalVideoUrl, et detectedSegments.
 export const createProjectDocument = async ({
@@ -47,6 +76,27 @@ export const createProjectDocument = async ({
   userId: string;
   documentId: string;
 }) => {
+  // Check if document already exists
+  const { data: existingDocument, error: checkError } = await supabase
+    .from("project_documents")
+    .select()
+    .eq("id", documentId)
+    .single();
+
+  if (checkError && checkError.code !== "PGRST116") {
+    // PGRST116 means no rows returned, which is what we want
+    console.error("Error checking for existing document", checkError);
+    throw new HTTPException(500, {
+      message: "Error checking for existing document",
+    });
+  }
+
+  if (existingDocument) {
+    throw new HTTPException(400, {
+      message: "A document with this ID already exists",
+    });
+  }
+
   try {
     const { data, error } = await supabase.from("project_documents").insert([
       {
@@ -67,6 +117,9 @@ export const createProjectDocument = async ({
 
     return data;
   } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
     console.error("Error creating project document", error);
     throw new HTTPException(500, {
       message: "Error creating project document",

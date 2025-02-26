@@ -33,7 +33,7 @@ const login = () => {
       setAuthenticated(true);
       setAccessToken(response.accessToken);
       setUserData(response.userInfo);
-      navigate("/app");
+      navigate("/dashboard");
     } catch (error) {
       toastMsg.error("Erreur lors de la connexion");
       console.error(error);

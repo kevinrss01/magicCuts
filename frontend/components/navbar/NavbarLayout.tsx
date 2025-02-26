@@ -53,7 +53,7 @@ export default function NavbarLayout({
               Home
             </Link>
           </NavbarItem>
-          <NavbarItem isActive={pathname === "/pricing"}>
+          <NavbarItem isActive={pathname === "/dashboard/pricing"}>
             <Link
               aria-current="page"
               className="flex gap-2 text-inherit"
@@ -62,9 +62,12 @@ export default function NavbarLayout({
               Pricing
             </Link>
           </NavbarItem>
-          <NavbarItem isActive={pathname === "/settings"}>
-            <Link className="flex gap-2 text-inherit" href="/settings">
-              Settings
+          <NavbarItem isActive={pathname === "/dashboard/settings"}>
+            <Link
+              className="flex gap-2 text-inherit"
+              href="/dashboard/settings"
+            >
+              Dashboard
             </Link>
           </NavbarItem>
         </NavbarContent>

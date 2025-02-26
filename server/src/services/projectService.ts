@@ -97,17 +97,19 @@ export class ProjectService {
         url,
       );
 
-      const res = await this.saveEachShortInS3(segments, userId, fileName);
+      const segmentsWithUrl = await this.saveEachShortInS3(
+        segments,
+        userId,
+        fileName,
+      );
 
       await updateProjectDocument({
         documentId: projectDocumentId,
-        detectedSegments: [],
+        detectedSegments: segmentsWithUrl,
         state: "completed",
       });
 
-      return {
-        message: "Project created successfully",
-      };
+      return segmentsWithUrl;
     } catch (error) {
       console.error(error);
 
@@ -169,6 +171,10 @@ export class ProjectService {
           awsFilePath,
         );
 
+        if (fs.existsSync(segment.filePath)) {
+          await fsPromises.unlink(segment.filePath);
+        }
+
         return {
           ...segment,
           filePath: url,
@@ -180,7 +186,6 @@ export class ProjectService {
   }
 
   async getAllProjects(userId: string) {
-  
     const projects = await getProjectsByUserId(userId);
     return projects;
   }

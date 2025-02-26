@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { UserData } from "~/utils/types/user";
+import type { UserData } from "~/utils/types/supabase";
 
 interface AuthState {
   isAuthenticated: boolean;

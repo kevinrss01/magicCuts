@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import jwt from "jsonwebtoken";
 import {
   createUserDocument,
+  getAllUserData,
   getUserData,
   isUserDocumentExists,
   supabase,
@@ -44,7 +45,9 @@ export const signIn = async (c: Context) => {
 
   try {
     decodedUser = jwt.verify(accessToken, config.jwtSecret);
+    console.log("decodedToken", decodedUser);
   } catch (error: any) {
+    console.log("error when verifying token", error);
     if (error.name === "TokenExpiredError") {
       tokenExpired = true;
       decodedUser = jwt.decode(accessToken);
@@ -62,6 +65,7 @@ export const signIn = async (c: Context) => {
     !decodedUser.user ||
     !decodedUser.user.id
   ) {
+    console.log("token payload is invalid: ", decodedUser);
     throw new HTTPException(401, {
       message: "Token payload is invalid",
     });
@@ -69,9 +73,11 @@ export const signIn = async (c: Context) => {
 
   const userId = decodedUser.user.id;
 
-  const userData = await getUserData(userId);
+  const userData = await getAllUserData(userId);
 
-  const newToken = jwt.sign({ user: userData }, config.jwtSecret, {
+  const { userRelativeData } = userData;
+
+  const newToken = jwt.sign({ user: userRelativeData }, config.jwtSecret, {
     expiresIn: "1h",
   });
 
@@ -81,8 +87,6 @@ export const signIn = async (c: Context) => {
 export const authCallback = async (c: Context) => {
   try {
     const body = await c.req.json();
-
-    console.log("Body", body);
 
     if (!body) {
       console.error("No body provided");
@@ -99,8 +103,6 @@ export const authCallback = async (c: Context) => {
         message: "Unauthorized",
       });
     }
-
-    console.log("Access token provided", access_token);
 
     const { data: userData, error } = await supabase.auth.getUser(access_token);
     if (error || !userData) {
@@ -124,6 +126,8 @@ export const authCallback = async (c: Context) => {
       console.debug("User document already exists");
     }
 
+    const userCompleteData = await getAllUserData(userData.user.id);
+
     const userInfo = {
       name: userData.user.user_metadata.name,
       email: userData.user.email,
@@ -135,7 +139,13 @@ export const authCallback = async (c: Context) => {
       expiresIn: "24h",
     });
 
-    return c.json({ accessToken: token, userInfo });
+    return c.json({
+      accessToken: token,
+      userInfo: {
+        userRelativeData: userCompleteData.userRelativeData,
+        userDocuments: userCompleteData.userDocuments,
+      },
+    });
   } catch (error) {
     if (error instanceof HTTPException) {
       throw error;

@@ -4,6 +4,7 @@ import { AuthAPI } from "../../utils/services/api/AuthApi";
 import { useAuthStore } from "../stores/authStore";
 import AxiosCallApi from "~/utils/services/axios";
 import { toastMsg } from "~/utils/toasts";
+import { Spinner } from "@heroui/react";
 
 // Define a simple context type; you can extend it if needed
 interface AuthContextProps {
@@ -21,7 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUserData = useAuthStore((state) => state.setUserData);
   const userData = useAuthStore((state) => state.userData);
-  const userId = useAuthStore((state) => state.userData?.id);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,14 +29,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // On page load, check for accessToken and a stored userId
     const token = localStorage.getItem("accessToken");
 
-    console.log("location", location);
-
-    console.log("useEffect token:", token?.length);
-
-    if (userId) {
-      console.log("userId", userId);
-      if (location.pathname === "/login") {
-        navigate("/");
+    if (userData?.id) {
+      console.log("userId", userData?.id);
+      if (location.pathname === "/login" || location.pathname === "/") {
+        navigate("/dashboard");
       }
       return;
     }
@@ -48,8 +44,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setAuthenticated(true);
           setAccessToken(response.accessToken);
           setLoading(false);
+          localStorage.setItem("accessToken", response.accessToken);
           AxiosCallApi.saveToken(response.accessToken);
-          setUserData(response.userData);
+          console.log("response.userData", response.userData);
+
+          setUserData(response.userData.userRelativeData);
         })
         .catch((error) => {
           console.error(error);
@@ -77,7 +76,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider value={{ loading }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <div className="flex h-screen w-screen items-center justify-center">
+          <Spinner />
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

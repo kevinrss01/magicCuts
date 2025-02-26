@@ -1,3 +1,5 @@
+import { DetectedSegments } from "./openai";
+
 export interface ProjectDocument {
   id: string;
   user_id: string;
