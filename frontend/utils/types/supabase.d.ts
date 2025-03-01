@@ -20,4 +20,5 @@ export interface ProjectDocument {
   original_video_url: string;
   detected_segments: DetectedSegments[];
   state: "pending" | "completed" | "failed";
+  name?: string;
 }

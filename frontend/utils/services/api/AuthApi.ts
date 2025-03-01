@@ -15,7 +15,10 @@ export class AuthAPI {
       { accessToken: string },
       {
         accessToken: string;
-        userData: UserData;
+        userData: {
+          userRelativeData: UserData;
+          userDocuments: ProjectDocument[];
+        };
       }
     >(formatSuffix("signin"), {
       accessToken: accessToken,

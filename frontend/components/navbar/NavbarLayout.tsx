@@ -48,8 +48,8 @@ export default function NavbarLayout({
           className="ml-4 hidden h-12 w-full max-w-fit gap-4 rounded-full bg-content2 px-4 dark:bg-content1 sm:flex"
           justify="start"
         >
-          <NavbarItem isActive={pathname === "/"}>
-            <Link className="flex gap-2 text-inherit" href="/">
+          <NavbarItem isActive={pathname === "/dashboard"}>
+            <Link className="flex gap-2 text-inherit" href="/dashboard">
               Home
             </Link>
           </NavbarItem>
@@ -67,7 +67,7 @@ export default function NavbarLayout({
               className="flex gap-2 text-inherit"
               href="/dashboard/settings"
             >
-              Dashboard
+              Settings
             </Link>
           </NavbarItem>
         </NavbarContent>

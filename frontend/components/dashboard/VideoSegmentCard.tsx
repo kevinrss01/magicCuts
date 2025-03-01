@@ -8,7 +8,7 @@ interface VideoSegmentCardProps {
 }
 
 export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
-  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const formatTime = (seconds: number) => {
@@ -19,58 +19,79 @@ export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
 
   const duration = segment.end - segment.start;
 
-  const handlePlayClick = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.currentTime = segment.start;
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+  const handleVideoClick = () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((error) => {
+          console.error("Error playing video:", error);
+        });
     }
+  };
+
+  const handleDownload = () => {
+    if (!segment.filePath) return;
+
+    // Create a temporary anchor element to trigger download
+    const a = document.createElement("a");
+    a.href = segment.filePath;
+    a.download = `segment-${segment.rank}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   React.useEffect(() => {
     const video = videoRef.current;
-    if (video) {
-      const handleTimeUpdate = () => {
-        if (video.currentTime >= segment.end) {
-          video.pause();
-          setIsPlaying(false);
-        }
-      };
+    if (!video) return;
 
-      video.addEventListener("timeupdate", handleTimeUpdate);
-      return () => video.removeEventListener("timeupdate", handleTimeUpdate);
-    }
-  }, [segment.end]);
+    const handleEnded = () => {
+      setIsPlaying(false);
+    };
+
+    // Add event listeners
+    video.addEventListener("ended", handleEnded);
+
+    // Clean up event listeners
+    return () => {
+      video.removeEventListener("ended", handleEnded);
+    };
+  }, []);
 
   return (
     <Card className="w-full">
       <CardBody className="flex flex-row gap-4 p-4">
         <div className="relative w-[240px] flex-shrink-0">
-          <video
-            ref={videoRef}
-            className="w-full h-[426px] rounded-lg object-cover bg-black"
-            src={segment.filePath}
-            preload="metadata"
-          />
-          <Button
-            isIconOnly
-            color="primary"
-            className="absolute bottom-4 right-4"
-            onPress={handlePlayClick}
-          >
-            <Icon
-              icon={isPlaying ? "lucide:pause" : "lucide:play"}
-              width={24}
+          <div className="relative">
+            <video
+              ref={videoRef}
+              className="w-full h-[426px] rounded-lg object-cover bg-black cursor-pointer"
+              src={segment.filePath}
+              onClick={handleVideoClick}
             />
-          </Button>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              {!isPlaying && (
+                <div className="bg-black/50 rounded-full p-3">
+                  <Icon icon="lucide:play" width={32} className="text-white" />
+                </div>
+              )}
+            </div>
+            <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-center py-1 text-sm rounded-t-lg">
+              Click to {isPlaying ? "pause" : "play"} video
+            </div>
+          </div>
         </div>
         <div className="flex-1 flex flex-col">
           <div className="flex items-start gap-4 mb-4">
-            <div className="flex items-center justify-center w-16 h-16 text-4xl font-bold text-primary bg-primary/10 rounded-lg">
+            <div className="flex items-center justify-center w-20 h-16 text-4xl font-bold text-primary bg-primary/10 rounded-lg">
               #{segment.rank}
             </div>
             <div className="flex-1">
@@ -78,12 +99,23 @@ export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
               <p className="text-default-500">{segment.reason}</p>
             </div>
           </div>
-          <div className="mt-auto flex gap-2 text-small text-default-500">
-            <span>Start: {formatTime(segment.start)}</span>
-            <span>•</span>
-            <span>End: {formatTime(segment.end)}</span>
-            <span>•</span>
-            <span>Duration: {formatTime(duration)}</span>
+          <div className="mt-auto">
+            <div className="flex gap-2 text-small text-default-500 mb-3">
+              <span>Start: {formatTime(segment.start)}</span>
+              <span>•</span>
+              <span>End: {formatTime(segment.end)}</span>
+              <span>•</span>
+              <span>Duration: {formatTime(duration)} seconds</span>
+            </div>
+            <Button
+              color="primary"
+              startContent={<Icon icon="lucide:download" width={18} />}
+              onPress={handleDownload}
+              className="w-full"
+              isDisabled={!segment.filePath}
+            >
+              Download video
+            </Button>
           </div>
         </div>
       </CardBody>

@@ -12,11 +12,10 @@ const DashboardItem = () => {
   const [projectDocument, setProjectDocument] =
     useState<ProjectDocument | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const params = useParams();
 
-  const getProjectData = async () => {
+  const getProjectData = async (id: string) => {
     try {
-      const params = useParams();
-      const id = params.id;
       if (!id) {
         throw new Error("No id provided");
       }
@@ -25,14 +24,20 @@ const DashboardItem = () => {
     } catch (error) {
       toastMsg.error("Erreur lors de la récupération du projet");
       console.error(error);
+      setError("Erreur lors de la récupération du projet");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getProjectData();
-  }, []);
+    if (params.id) {
+      getProjectData(params.id);
+    } else {
+      setError("No project ID provided");
+      setLoading(false);
+    }
+  }, [params.id]);
 
   return (
     <div className="container mx-auto p-4 max-w-5xl">

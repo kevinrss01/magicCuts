@@ -21,6 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setUserData = useAuthStore((state) => state.setUserData);
+  const setUserProjects = useAuthStore((state) => state.setUserProjects);
   const userData = useAuthStore((state) => state.userData);
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,7 +31,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const token = localStorage.getItem("accessToken");
 
     if (userData?.id) {
-      console.log("userId", userData?.id);
       if (location.pathname === "/login" || location.pathname === "/") {
         navigate("/dashboard");
       }
@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           console.log("response.userData", response.userData);
 
           setUserData(response.userData.userRelativeData);
+          setUserProjects(response.userData.userDocuments);
         })
         .catch((error) => {
           console.error(error);
@@ -62,6 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setLoading(false);
           if (location.pathname !== "/login") {
             navigate("/login");
+          }
+        })
+        .finally(() => {
+          if (location.pathname === "/") {
+            navigate("/dashboard");
           }
         });
     } else {

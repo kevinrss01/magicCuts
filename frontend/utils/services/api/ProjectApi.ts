@@ -1,7 +1,7 @@
-import { ProjectDocument, UserData } from "~/utils/types/supabase";
+import { ProjectDocument } from "~/utils/types/supabase";
 import AxiosCallApi from "../axios";
 
-const PREFIX = "project";
+const PREFIX = "projects";
 
 const formatSuffix = (suffix: string) => `${PREFIX}/${suffix}`;
 
