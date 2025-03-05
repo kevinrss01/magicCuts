@@ -21,4 +21,5 @@ export interface ProjectDocument {
   detected_segments: DetectedSegments[];
   state: "pending" | "completed" | "failed";
   name?: string;
+  createdDate?: string;
 }

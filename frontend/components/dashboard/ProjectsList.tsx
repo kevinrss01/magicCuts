@@ -1,16 +1,66 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { useNavigate } from "@remix-run/react";
-import { ProjectDocument } from "../../utils/types/supabase";
 import { useAuthStore } from "../../app/stores/authStore";
+import { ProjectAPI } from "../../utils/services/api/ProjectApi";
+import { cn } from "~/cn";
 
 export const ProjectsList: React.FC = () => {
   const userProjects = useAuthStore((state) => state.userProjects);
+  const setUserProjects = useAuthStore((state) => state.setUserProjects);
   const navigate = useNavigate();
 
   const projects = userProjects || [];
+
+  const checkPendingProjects = useCallback(async () => {
+    const pendingProjects = projects.filter(
+      (project) => project.state === "pending",
+    );
+
+    if (pendingProjects.length === 0) return;
+
+    try {
+      const updatedProjectsPromises = pendingProjects.map((project) =>
+        ProjectAPI.getProject(project.id),
+      );
+
+      const updatedProjectsResults = await Promise.all(updatedProjectsPromises);
+
+      let hasChanges = false;
+
+      const newProjectsList = [...projects];
+
+      updatedProjectsResults.forEach((updatedProject) => {
+        const projectIndex = newProjectsList.findIndex(
+          (p) => p.id === updatedProject.id,
+        );
+
+        if (
+          projectIndex !== -1 &&
+          newProjectsList[projectIndex].state !== updatedProject.state
+        ) {
+          newProjectsList[projectIndex] = updatedProject;
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        setUserProjects(newProjectsList);
+      }
+    } catch (error) {
+      console.error("Error checking pending projects:", error);
+    }
+  }, [projects, setUserProjects]);
+
+  useEffect(() => {
+    checkPendingProjects();
+
+    const intervalId = setInterval(checkPendingProjects, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [checkPendingProjects]);
 
   // Render project status icon based on state
   const renderStatusIcon = (state: "pending" | "completed" | "failed") => {
@@ -67,28 +117,56 @@ export const ProjectsList: React.FC = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {projects.map((project) => (
-            <Card
-              key={project.id}
-              className="w-full cursor-pointer hover:shadow-md transition-shadow"
-              isPressable
-              onPress={() => navigate(`/dashboard/${project.id}`)}
-            >
-              <CardBody className="flex flex-row items-center justify-between p-4">
-                <div className="flex flex-col">
-                  <h3 className="font-medium">
-                    {project.name || "Untitled Project"}
-                  </h3>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500 capitalize">
-                    {project.state}
-                  </span>
-                  {renderStatusIcon(project.state)}
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+          {projects
+            .sort((a, b) => {
+              const dateA = a.createdDate
+                ? new Date(a.createdDate).getTime()
+                : 0;
+              const dateB = b.createdDate
+                ? new Date(b.createdDate).getTime()
+                : 0;
+              return dateB - dateA; // Sort in descending order (newest first)
+            })
+            .map((project) => (
+              <Card
+                key={project.id}
+                className={cn(
+                  "w-full cursor-pointer hover:shadow-md transition-shadow",
+                  project.state !== "completed" && "pointer-events-none",
+                )}
+                isPressable={project.state === "completed"}
+                isHoverable={project.state === "completed"}
+                onPress={() => navigate(`/dashboard/${project.id}`)}
+              >
+                <CardBody className="flex flex-row items-center justify-between p-4">
+                  <div className="flex flex-col">
+                    <h3 className="font-medium">
+                      {project.name || "Untitled Project"}
+                    </h3>
+                    {project.createdDate && (
+                      <span className="text-xs text-gray-400">
+                        {new Date(project.createdDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-500 capitalize">
+                      {project.state}
+                    </span>
+                    {renderStatusIcon(project.state)}
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
         </div>
       )}
     </div>

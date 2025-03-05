@@ -14,4 +14,23 @@ export class ProjectAPI {
       },
     );
   }
+
+  static async createProject(formData: FormData) {
+    return AxiosCallApi.post<FormData, any>(
+      formatSuffix("createProject"),
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+  }
+
+  static async getAllProjects() {
+    return AxiosCallApi.post<{}, ProjectDocument[]>(
+      formatSuffix("getAllProjects"),
+      {},
+    );
+  }
 }

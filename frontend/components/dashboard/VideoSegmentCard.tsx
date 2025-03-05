@@ -8,9 +8,6 @@ interface VideoSegmentCardProps {
 }
 
 export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
-  const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
@@ -18,24 +15,6 @@ export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
   };
 
   const duration = segment.end - segment.start;
-
-  const handleVideoClick = () => {
-    if (!videoRef.current) return;
-
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch((error) => {
-          console.error("Error playing video:", error);
-        });
-    }
-  };
 
   const handleDownload = () => {
     if (!segment.filePath) return;
@@ -49,44 +28,18 @@ export function VideoSegmentCard({ segment }: VideoSegmentCardProps) {
     document.body.removeChild(a);
   };
 
-  React.useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
-
-    // Add event listeners
-    video.addEventListener("ended", handleEnded);
-
-    // Clean up event listeners
-    return () => {
-      video.removeEventListener("ended", handleEnded);
-    };
-  }, []);
-
   return (
     <Card className="w-full">
       <CardBody className="flex flex-row gap-4 p-4">
         <div className="relative w-[240px] flex-shrink-0">
           <div className="relative">
             <video
-              ref={videoRef}
-              className="w-full h-[426px] rounded-lg object-cover bg-black cursor-pointer"
+              className="w-full h-[426px] rounded-lg object-cover bg-black"
               src={segment.filePath}
-              onClick={handleVideoClick}
+              controls
+              preload="auto"
+              onError={(e) => console.error("Error loading video:", e)}
             />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              {!isPlaying && (
-                <div className="bg-black/50 rounded-full p-3">
-                  <Icon icon="lucide:play" width={32} className="text-white" />
-                </div>
-              )}
-            </div>
-            <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-center py-1 text-sm rounded-t-lg">
-              Click to {isPlaying ? "pause" : "play"} video
-            </div>
           </div>
         </div>
         <div className="flex-1 flex flex-col">

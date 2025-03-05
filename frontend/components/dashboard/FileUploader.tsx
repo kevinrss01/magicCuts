@@ -1,8 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { Alert, Button, Card, CardBody, Spinner } from "@heroui/react";
+import { useState, ChangeEvent } from "react";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Spinner,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { useAuthStore } from "../../app/stores/authStore";
+import { ProjectAPI } from "../../utils/services/api/ProjectApi";
+// @ts-ignore - Ignoring declaration file error since types are installed
+import { v4 as uuidv4 } from "uuid";
+import { ProjectDocument } from "~/utils/types/supabase";
+
+// Time options for the segments
+const TIME_OPTIONS = [
+  { value: "15-30seconds", label: "15-30 seconds (recommended)" },
+  { value: "30-60seconds", label: "30-60 seconds" },
+  { value: "60-90seconds", label: "1-1.5 minutes" },
+  { value: "90-120seconds", label: "1.5-2 minutes" },
+  { value: "120-180seconds", label: "2-3 minutes" },
+];
 
 export const FileUploader: React.FC = () => {
   // State for file upload
@@ -12,9 +33,10 @@ export const FileUploader: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showProcessingMessage, setShowProcessingMessage] =
     useState<boolean>(false);
+  const [selectedTime, setSelectedTime] = useState<string>("");
 
-  // Get user data from auth store
-  const { userData } = useAuthStore();
+  // Get user data and projects update function from auth store
+  const { userData, userProjects, setUserProjects } = useAuthStore();
 
   // Handle drag events
   const handleDragIn = (e: React.DragEvent) => {
@@ -123,39 +145,69 @@ export const FileUploader: React.FC = () => {
       return;
     }
 
+    if (!selectedTime) {
+      setError("Please select a segment time length");
+      return;
+    }
+
     if (!userData) {
       setError("You must be logged in to upload files");
-      return;
       return;
     }
 
     setIsUploading(true);
+    setError(null);
+
+    // Show processing message after a short delay
+    const processingTimer = setTimeout(() => {
+      setShowProcessingMessage(true);
+    }, 2000);
 
     try {
-      // Mock API call since createProject doesn't exist yet
-      // In a real implementation, you would call the actual API with the user's access token
-      // const response = await fetch('/api/projects', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${userData.accessToken}`
-      //   },
-      //   body: formData
-      // });
+      // Create a unique project ID
+      const projectId = uuidv4();
 
-      // For now, just simulate a successful upload
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create FormData object
+      const formData = new FormData();
+      formData.append("video", file);
+      formData.append("projectId", projectId);
+      formData.append("timeRequested", selectedTime);
+      formData.append("name", file.name);
 
-      // Success
-      setError(null);
+      const pendingProject: ProjectDocument = {
+        id: projectId,
+        user_id: userData.id,
+        original_video_url: "",
+        detected_segments: [],
+        state: "pending" as const,
+        name: file.name,
+        createdDate: new Date().toISOString(),
+      };
+
+      setUserProjects([...userProjects, pendingProject]);
+
+      // Don't await the API call, let it run in the background
+      ProjectAPI.createProject(formData).catch((error) => {
+        console.error("Project creation failed:", error);
+        // Optional: Update the project state to failed if needed
+        // This would require finding the project in the state and updating it
+      });
+
+      // Reset states immediately
       setFile(null);
-
-      // Trigger a refresh of the projects list (this would be handled by a global state or context in a real app)
-      window.dispatchEvent(new CustomEvent("refreshProjects"));
+      setSelectedTime("");
+      setError(null);
     } catch (error) {
-      console.error("Upload failed:", error);
-      setError("Upload failed. Please try again later.");
+      console.error("Upload initialization failed:", error);
+
+      // Handle different types of errors
+      if (error instanceof Error) {
+        setError(`Upload failed: ${error.message}`);
+      } else {
+        setError("Upload failed. Please try again later.");
+      }
     } finally {
-      clearTimeout(timer);
+      clearTimeout(processingTimer);
       setIsUploading(false);
       setShowProcessingMessage(false);
     }
@@ -239,11 +291,34 @@ export const FileUploader: React.FC = () => {
               />
             </label>
           </div>
+
+          {/* Time segment selector */}
+          <div className="mt-4">
+            <Select
+              label="Select segment time length"
+              placeholder="Choose desired segment length"
+              selectedKeys={selectedTime ? [selectedTime] : []}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              isRequired
+              isDisabled={isUploading}
+              color="primary"
+              variant="bordered"
+              className="w-full"
+              errorMessage={
+                !selectedTime && error ? "Time selection is required" : ""
+              }
+            >
+              {TIME_OPTIONS.map((option) => (
+                <SelectItem key={option.value}>{option.label}</SelectItem>
+              ))}
+            </Select>
+          </div>
+
           <Button
             color="primary"
             className="mt-4 w-full transition-transform duration-200 hover:scale-[1.02]"
             onPress={handleUpload}
-            isDisabled={!file || isUploading}
+            isDisabled={!file || !selectedTime || isUploading}
           >
             Get my viral shorts
           </Button>

@@ -89,6 +89,9 @@ export class ProjectController {
         userId: payload.user.id,
         timeRequested: timeRequested,
         projectDocumentId: projectId,
+        projectName:
+          (formData.get("name") as string) ||
+          uploadedVideo.name.replace(" ", ""),
       });
 
       return res;

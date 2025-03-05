@@ -27,12 +27,14 @@ export class ProjectService {
     userId,
     timeRequested,
     projectDocumentId,
+    projectName,
   }: {
     file: File;
     fileName: string;
     userId: string;
     timeRequested: string;
     projectDocumentId: string;
+    projectName: string;
   }) {
     const tempFilePath = `temp/${crypto.randomUUID()}-${fileName.replace(
       " ",
@@ -42,14 +44,11 @@ export class ProjectService {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    console.log("projectDocumentId", projectDocumentId);
-    console.log("userId", userId);
-    console.log("fileName", fileName);
-
     try {
       await createProjectDocument({
         userId,
         documentId: projectDocumentId,
+        projectName,
       });
 
       await fsPromises.mkdir("temp", { recursive: true });

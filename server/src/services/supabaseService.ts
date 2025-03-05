@@ -72,9 +72,11 @@ export const getAllUserData = async (userId: string) => {
 export const createProjectDocument = async ({
   userId,
   documentId,
+  projectName,
 }: {
   userId: string;
   documentId: string;
+  projectName: string;
 }) => {
   // Check if document already exists
   const { data: existingDocument, error: checkError } = await supabase
@@ -105,6 +107,8 @@ export const createProjectDocument = async ({
         original_video_url: null,
         detected_segments: null,
         state: "pending",
+        name: projectName,
+        createdDate: new Date().toISOString(),
       },
     ]);
 
