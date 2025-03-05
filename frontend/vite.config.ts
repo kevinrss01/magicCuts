@@ -59,5 +59,9 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    open: true,
+    port: 3000,
+  },
   logLevel: "warn", // Suppress info-level logs
 });
