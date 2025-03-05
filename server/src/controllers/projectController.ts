@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 import { ProjectService } from "../services/projectService";
 import { HTTPException } from "hono/http-exception";
+import { getUserDocument, updateUserTokens } from "../services/supabaseService";
 
 export class ProjectController {
   constructor() {
@@ -9,7 +10,6 @@ export class ProjectController {
 
   async createProject(c: Context) {
     try {
-      console.log("createProject");
       if (!c.req || !c.req?.formData) {
         console.error("No request provided.");
         throw new HTTPException(400, {
@@ -44,6 +44,22 @@ export class ProjectController {
         });
       }
 
+      // Verify user has at least one token
+      const { tokens } = await getUserDocument(payload.user.email);
+      if (tokens < 1) {
+        console.error("User does not have enough tokens.");
+        throw new HTTPException(403, {
+          message:
+            "Insufficient tokens. Please purchase more tokens to create a project.",
+        });
+      }
+
+      // Deduct one token from the user's account
+      await updateUserTokens(payload.user.email, 1);
+      console.debug(
+        `Deducted 1 token from user ${payload.user.email}. Remaining tokens: ${tokens - 1}`,
+      );
+
       if (!video || typeof video === "string") {
         console.error("No video uploaded or invalid video.");
         throw new HTTPException(400, {
@@ -51,10 +67,8 @@ export class ProjectController {
         });
       }
 
-      // Cast the file to a File type
       const uploadedVideo = video as File;
 
-      // Verify the file is a video file by checking its MIME type
       if (!uploadedVideo.type || !uploadedVideo.type.startsWith("video/")) {
         console.error("Uploaded video is not a video file.");
         throw new HTTPException(400, {
@@ -107,7 +121,6 @@ export class ProjectController {
   }
 
   async getProject(c: Context) {
-    console.log("getProject");
     try {
       const userId = c.get("jwtPayload").user.id;
       const body = await c.req.json();
@@ -138,12 +151,25 @@ export class ProjectController {
   }
 
   async getAllProjects(c: Context) {
-    console.log("getAllProjects");
     try {
       const userId = c.get("jwtPayload").user.id;
       const projectService = new ProjectService();
       const res = await projectService.getAllProjects(userId);
       return res;
+    } catch (error) {
+      console.error(error);
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+      throw new HTTPException(500, {
+        message: "Internal server error.",
+      });
+    }
+  }
+
+  async addSubtitle(c: Context) {
+    try {
+      //
     } catch (error) {
       console.error(error);
       if (error instanceof HTTPException) {

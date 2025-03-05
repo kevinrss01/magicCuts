@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import {
   createUserDocument,
   getAllUserData,
-  getUserData,
   isUserDocumentExists,
   supabase,
 } from "../services/supabaseService";
@@ -45,9 +44,7 @@ export const signIn = async (c: Context) => {
 
   try {
     decodedUser = jwt.verify(accessToken, config.jwtSecret);
-    console.log("decodedToken", decodedUser);
   } catch (error: any) {
-    console.log("error when verifying token", error);
     if (error.name === "TokenExpiredError") {
       tokenExpired = true;
       decodedUser = jwt.decode(accessToken);
@@ -65,7 +62,7 @@ export const signIn = async (c: Context) => {
     !decodedUser.user ||
     !decodedUser.user.id
   ) {
-    console.log("token payload is invalid: ", decodedUser);
+    console.error("token payload is invalid: ", decodedUser);
     throw new HTTPException(401, {
       message: "Token payload is invalid",
     });

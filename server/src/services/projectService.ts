@@ -43,6 +43,7 @@ export class ProjectService {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    let originalUrlVideo = "";
 
     try {
       await createProjectDocument({
@@ -58,14 +59,15 @@ export class ProjectService {
 
       const awsFilePath = `magicscuts/${userId}/${crypto.randomUUID()}-${fileName}`;
 
-      const url = await awsService.uploadFileFromStreamToAWS(
+      originalUrlVideo = await awsService.uploadFileFromStreamToAWS(
         stream,
         awsFilePath,
       );
       console.debug("File uploaded to AWS");
       const transcriptionService = new TranscriptionService();
 
-      const transcription = await transcriptionService.transcribeVideo(url);
+      const transcription =
+        await transcriptionService.transcribeVideo(originalUrlVideo);
 
       const promptService = new PromptService();
 
@@ -93,7 +95,7 @@ export class ProjectService {
 
       const segments = await ffmpegService.cutAndTransformSegments(
         bestSegmentJSON,
-        url,
+        originalUrlVideo,
       );
 
       const segmentsWithUrl = await this.saveEachShortInS3(
@@ -128,6 +130,11 @@ export class ProjectService {
     } finally {
       if (fs.existsSync(tempFilePath)) {
         await fsPromises.unlink(tempFilePath);
+      }
+
+      const awsService = new AwsService();
+      if (originalUrlVideo) {
+        await awsService.deleteFileFromAWS(originalUrlVideo);
       }
     }
   }

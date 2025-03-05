@@ -41,6 +41,7 @@ export const getUserData = async (userId: string) => {
 export const getAllUserData = async (userId: string) => {
   try {
     const userRelativeData = await getUserData(userId);
+    const otherUserData = await getUserDocument(userRelativeData.email);
 
     const { data: userDocuments, error: userDocumentsError } = await supabase
       .from("project_documents")
@@ -53,7 +54,10 @@ export const getAllUserData = async (userId: string) => {
     }
 
     return {
-      userRelativeData,
+      userRelativeData: {
+        ...userRelativeData,
+        ...otherUserData,
+      },
       userDocuments,
     };
   } catch (error) {
@@ -249,6 +253,83 @@ export const isUserDocumentExists = async (email: string) => {
     console.error("Error checking if user document exists", error);
     throw new HTTPException(500, {
       message: "Error checking if user document exists",
+    });
+  }
+};
+
+export const getUserDocument = async (email: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("tokens, is_premium")
+      .eq("email", email)
+      .single();
+
+    if (error) {
+      console.error("Error fetching user document", error);
+      throw new HTTPException(500, {
+        message: "Error fetching user document",
+      });
+    }
+
+    return {
+      tokens: data.tokens,
+      is_premium: data.is_premium,
+    };
+  } catch (error) {
+    console.error("Error fetching user tokens and premium status", error);
+    throw new HTTPException(500, {
+      message: "Error fetching user tokens and premium status",
+    });
+  }
+};
+
+/**
+ * Updates a user's token count
+ * @param email The user's email
+ * @param tokensToDeduct Number of tokens to deduct (positive number)
+ * @returns The updated user data
+ */
+export const updateUserTokens = async (
+  email: string,
+  tokensToDeduct: number,
+) => {
+  try {
+    // First get current token count
+    const { tokens } = await getUserDocument(email);
+
+    // Check if user has enough tokens
+    if (tokens < tokensToDeduct) {
+      throw new HTTPException(403, {
+        message: "Insufficient tokens. Please purchase more tokens.",
+      });
+    }
+
+    // Update tokens
+    const { data, error } = await supabase
+      .from("users")
+      .update({ tokens: tokens - tokensToDeduct })
+      .eq("email", email)
+      .select("tokens, is_premium");
+
+    if (error) {
+      console.error("Error updating user tokens", error);
+      throw new HTTPException(500, {
+        message: "Error updating user tokens",
+      });
+    }
+
+    return {
+      tokens: data[0].tokens,
+      is_premium: data[0].is_premium,
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error("Error updating user tokens", error);
+    throw new HTTPException(500, {
+      message: "Error updating user tokens",
     });
   }
 };

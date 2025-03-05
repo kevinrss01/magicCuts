@@ -12,6 +12,7 @@
     "@aws-sdk/s3-request-presigner": "^3.750.0",
     "@deepgram/sdk": "^3.11.1",
     "@hono/node-server": "^1.13.8",
+    "@remotion/renderer": "^4.0.271",
     "@supabase/supabase-js": "^2.48.1",
     "@types/ffprobe-static": "^2.0.3",
     "@types/fluent-ffmpeg": "^2.1.27",
@@ -21,11 +22,16 @@
     "jsonwebtoken": "^9.0.2",
     "openai": "^4.85.3",
     "prettier": "^3.5.1",
-    "stripe": "^17.6.0"
+    "remotion": "^4.0.271",
+    "stripe": "^17.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20.11.17",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0"
   }
 }

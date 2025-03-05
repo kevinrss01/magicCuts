@@ -13,9 +13,9 @@ import {
   DropdownMenu,
   DropdownItem,
   Avatar,
-  Badge,
 } from "@heroui/react";
 import { useLocation } from "@remix-run/react";
+import { useNavigate } from "@remix-run/react";
 
 import { AcmeIcon } from "../../app/routes/AcmeIcon";
 import { useAuthStore } from "~/stores/authStore";
@@ -27,7 +27,18 @@ export default function NavbarLayout({
 }) {
   const userData = useAuthStore((state) => state.userData);
   const { pathname } = useLocation();
-  console.log("userData", userData);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    useAuthStore.setState({
+      userData: null,
+      isAuthenticated: false,
+      accessToken: null,
+    });
+    navigate("/login");
+  };
 
   return (
     <>
@@ -87,11 +98,25 @@ export default function NavbarLayout({
                   <p className="font-semibold">Signed in as</p>
                   <p className="font-semibold">{userData?.email}</p>
                 </DropdownItem>
-                <DropdownItem key="settings">My Settings</DropdownItem>
-                <DropdownItem key="help_and_feedback">
-                  Help & Feedback
+                <DropdownItem key="tokens" className="h-8 gap-2">
+                  <div className="flex items-center justify-between w-full">
+                    <p className="font-semibold">Available Tokens</p>
+                    <p className="font-bold">{userData?.tokens || 0}</p>
+                  </div>
                 </DropdownItem>
-                <DropdownItem key="logout" color="danger">
+                <DropdownItem
+                  key="settings"
+                  onPress={() => {
+                    navigate("/dashboard/settings");
+                  }}
+                >
+                  My Settings
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  onPress={handleLogout}
+                >
                   Log Out
                 </DropdownItem>
               </DropdownMenu>

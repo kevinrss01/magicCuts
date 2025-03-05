@@ -29,7 +29,6 @@ app.use(prettyJSON());
 app.use("*", async (c, next) => {
   const méthode = c.req.method;
   const url = c.req.url;
-  console.log(`Request received : ${méthode} ${url}`);
 
   await next();
 });
@@ -47,8 +46,6 @@ app.route("/projects", projectRoutes);
 app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
-
-console.log(process.env.PORT);
 
 serve(
   {

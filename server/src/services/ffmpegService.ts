@@ -4,7 +4,6 @@ import path from "path";
 import fs from "fs";
 import type { DetectedSegments } from "../types/openai";
 
-// This interface is for the input object containing all segments
 interface SegmentsInput {
   segments: DetectedSegments[];
 }
@@ -40,18 +39,11 @@ export class FfmpegService {
           .setStartTime(segment.start)
           .setDuration(segmentDuration)
           .videoFilters([
-            // 1) Crop: conserver la hauteur, rogner la largeur pour 9:16
             "crop='ih*(9/16)':ih:(iw - ih*(9/16))/2:0",
-            // 2) Resize final en 1080×1920
             "scale=1080:1920",
           ])
-          .outputOptions("-c:a copy") // Keep original audio
+          .outputOptions("-c:a copy")
           .on("end", () => {
-            // Once processing is done, we add filePath to the segment
-            console.log("new segment", {
-              ...segment,
-              filePath: outputPath,
-            });
             resolve({
               ...segment,
               filePath: outputPath,
@@ -70,8 +62,6 @@ export class FfmpegService {
     for (const segment of segmentPromises) {
       segments.push(await segment);
     }
-
-    console.log(segments);
 
     return segments;
   }

@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (token) {
-      console.log("no userData found and token found");
       AuthAPI.signIn(token)
         .then((response) => {
           setAuthenticated(true);
@@ -46,7 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setLoading(false);
           localStorage.setItem("accessToken", response.accessToken);
           AxiosCallApi.saveToken(response.accessToken);
-          console.log("response.userData", response.userData);
 
           setUserData(response.userData.userRelativeData);
           setUserProjects(response.userData.userDocuments);
@@ -71,7 +69,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         });
     } else {
-      console.log("no token");
       setLoading(false);
       // If no token exists and the user is not on the login page, redirect
       if (location.pathname !== "/login") {

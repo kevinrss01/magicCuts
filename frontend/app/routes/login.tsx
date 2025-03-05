@@ -1,18 +1,14 @@
 import { AuthAPI } from "~/utils/services/api/AuthApi";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "~/stores/authStore";
 import { toastMsg } from "~/utils/toasts";
 import { useNavigate } from "@remix-run/react";
-import { Button, Input, Link, Divider, User, Checkbox } from "@heroui/react";
+import { Button, User } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import { AcmeIcon } from "./AcmeIcon";
 
 const login = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  const toggleVisibility = () => setIsVisible(!isVisible);
-
   const { setAuthenticated, setAccessToken, setUserData } = useAuthStore();
   const navigate = useNavigate();
   const handleLogin = async () => {
@@ -28,11 +24,10 @@ const login = () => {
   const handleAccessToken = async (accessToken: string) => {
     try {
       const response = await AuthAPI.callback(accessToken);
-      console.log("response", response);
       localStorage.setItem("accessToken", response.accessToken);
       setAuthenticated(true);
       setAccessToken(response.accessToken);
-      setUserData(response.userInfo);
+      setUserData(response.userInfo.userRelativeData);
       navigate("/dashboard");
     } catch (error) {
       toastMsg.error("Erreur lors de la connexion");

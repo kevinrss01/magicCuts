@@ -4,12 +4,19 @@ import {
   CardHeader,
   Button,
   Divider,
-  Badge,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "@remix-run/react";
+import { useState } from "react";
 
 export default function Pricing() {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const features = [
     {
       name: "Monthly price",
@@ -49,7 +56,6 @@ export default function Pricing() {
     },
     { name: "AI-powered short creation", basic: "✓", pro: "✓", premium: "✓" },
     { name: "Shorts per video", basic: "10", pro: "10", premium: "10" },
-    // Removed priority processing, advanced analytics, and custom branding as requested
   ];
 
   const navigate = useNavigate();
@@ -99,7 +105,12 @@ export default function Pricing() {
                     Create up to 100 short clips (10 per video)
                   </p>
                 </div>
-                <Button color="primary" size="lg" className="w-full mt-4">
+                <Button
+                  color="primary"
+                  size="lg"
+                  className="w-full mt-4"
+                  onPress={() => setIsModalOpen(true)}
+                >
                   Get Started
                 </Button>
               </div>
@@ -142,7 +153,12 @@ export default function Pricing() {
                     Create up to 250 short clips (10 per video)
                   </p>
                 </div>
-                <Button color="primary" size="lg" className="w-full mt-4">
+                <Button
+                  color="primary"
+                  size="lg"
+                  className="w-full mt-4"
+                  onPress={() => setIsModalOpen(true)}
+                >
                   Get Started
                 </Button>
               </div>
@@ -180,7 +196,12 @@ export default function Pricing() {
                     Create up to 400 short clips (10 per video)
                   </p>
                 </div>
-                <Button color="primary" size="lg" className="w-full mt-4">
+                <Button
+                  color="primary"
+                  size="lg"
+                  className="w-full mt-4"
+                  onPress={() => setIsModalOpen(true)}
+                >
                   Get Started
                 </Button>
               </div>
@@ -343,6 +364,26 @@ export default function Pricing() {
           </Button>
         </div>
       </div>
+
+      {/* Not Available Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            Payment Not Available
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              Payment options are not available at the moment. Send us a message
+              if you need to pay for a subscription.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onPress={() => setIsModalOpen(false)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

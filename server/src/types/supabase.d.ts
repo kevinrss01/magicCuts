@@ -8,4 +8,6 @@ export interface ProjectDocument {
   state: "pending" | "completed" | "failed";
   name?: string;
   createdDate?: string;
+  tokens: number;
+  is_premium: boolean;
 }

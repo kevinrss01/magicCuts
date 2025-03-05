@@ -15,6 +15,7 @@ import { ProjectAPI } from "../../utils/services/api/ProjectApi";
 // @ts-ignore - Ignoring declaration file error since types are installed
 import { v4 as uuidv4 } from "uuid";
 import { ProjectDocument } from "~/utils/types/supabase";
+import { toastMsg } from "~/utils/toasts";
 
 // Time options for the segments
 const TIME_OPTIONS = [
@@ -60,12 +61,26 @@ export const FileUploader: React.FC = () => {
   const checkFileConstraints = async (
     file: File,
   ): Promise<{ isValid: boolean; error?: string }> => {
-    // Check file size (500 MB = 500 * 1024 * 1024 bytes)
-    const maxSize = 500 * 1024 * 1024;
+    // Check if user has tokens
+    if (!userData?.is_premium && (userData?.tokens || 0) <= 0) {
+      return {
+        isValid: false,
+        error:
+          "You don't have any tokens left. Please upgrade to premium or purchase more tokens.",
+      };
+    }
+
+    // Check file size - 1GB for premium users, 500MB for regular users
+    const maxSize = userData?.is_premium
+      ? 1024 * 1024 * 1024 // 1GB for premium users
+      : 500 * 1024 * 1024; // 500MB for regular users
+
     if (file.size > maxSize) {
       return {
         isValid: false,
-        error: "File size must be less than 500 MB",
+        error: userData?.is_premium
+          ? "File size must be less than 1 GB"
+          : "File size must be less than 500 MB. Upgrade to premium to upload files up to 1 GB.",
       };
     }
 
@@ -155,6 +170,14 @@ export const FileUploader: React.FC = () => {
       return;
     }
 
+    // Check if user has tokens
+    if (!userData.is_premium && userData.tokens <= 0) {
+      setError(
+        "You don't have any tokens left. Please upgrade to premium or purchase more tokens.",
+      );
+      return;
+    }
+
     setIsUploading(true);
     setError(null);
 
@@ -193,10 +216,15 @@ export const FileUploader: React.FC = () => {
         // This would require finding the project in the state and updating it
       });
 
+      userData.tokens -= 1;
+
       // Reset states immediately
       setFile(null);
       setSelectedTime("");
       setError(null);
+      toastMsg.success(
+        "Video uploaded successfully, please wait for the process to finish.",
+      );
     } catch (error) {
       console.error("Upload initialization failed:", error);
 
@@ -257,8 +285,17 @@ export const FileUploader: React.FC = () => {
                         or drag and drop
                       </p>
                       <p className="text-xs text-gray-400">
-                        Support for MP4, MOV, AVI videos (max 500 MB) <br />
-                        <b>Upgrade to to upload longer videos</b>
+                        Support for MP4, MOV, AVI videos
+                        {userData?.is_premium
+                          ? " (max 1 GB)"
+                          : " (max 500 MB)"}{" "}
+                        <br />
+                        {!userData?.is_premium && (
+                          <b>
+                            Upgrade to premium to upload larger videos up to 1
+                            GB
+                          </b>
+                        )}
                       </p>
                       {file && (
                         <p className="text-sm text-primary font-medium">
@@ -324,6 +361,30 @@ export const FileUploader: React.FC = () => {
           </Button>
         </CardBody>
       </Card>
+
+      {/* Available tokens display */}
+      <div className="mt-4 text-sm flex items-center justify-between p-3 bg-default-50 rounded-lg border border-default-200">
+        <div className="flex items-center gap-2">
+          <span>Available tokens:</span>
+          <strong
+            className={
+              (userData?.tokens || 0) === 0
+                ? "text-red-500 font-bold"
+                : "text-primary font-bold"
+            }
+          >
+            {userData?.tokens || 0}
+          </strong>
+          {(userData?.tokens || 0) === 0 && (
+            <span className="text-red-500 text-xs animate-pulse">
+              No tokens left!
+            </span>
+          )}
+        </div>
+        <span className="text-xs bg-default-100 px-2 rounded-md">
+          Each upload uses 1 token
+        </span>
+      </div>
       <div className="pt-4">
         {error && (
           <Alert

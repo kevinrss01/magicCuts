@@ -11,9 +11,16 @@ import { NuqsAdapter } from "nuqs/adapters/remix";
 import { useLocation } from "@remix-run/react";
 import "./tailwind.css";
 import NavbarLayout from "components/navbar/NavbarLayout";
+import { HeroUIProvider } from "@heroui/react";
+import { Toaster, toast } from "sonner";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "icon",
+    href: "/favicon.png", // Le chemin est relatif au dossier public
+    type: "image/png",
+  },
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
@@ -47,16 +54,19 @@ export default function App() {
   const pathname = useLocation();
 
   return (
-    <AuthProvider>
-      <NuqsAdapter>
-        {pathname.pathname === "/login" ? (
-          <Outlet />
-        ) : (
-          <NavbarLayout>
+    <HeroUIProvider>
+      <Toaster />
+      <AuthProvider>
+        <NuqsAdapter>
+          {pathname.pathname === "/login" ? (
             <Outlet />
-          </NavbarLayout>
-        )}
-      </NuqsAdapter>
-    </AuthProvider>
+          ) : (
+            <NavbarLayout>
+              <Outlet />
+            </NavbarLayout>
+          )}
+        </NuqsAdapter>
+      </AuthProvider>
+    </HeroUIProvider>
   );
 }

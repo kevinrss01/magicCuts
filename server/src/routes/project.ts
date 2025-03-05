@@ -19,3 +19,9 @@ projectRoutes.post("/getAllProjects", async (c) => {
   const result = await projectController.getAllProjects(c);
   return c.json(result);
 });
+
+projectRoutes.post("/addSubtitle", async (c) => {
+  const projectController = new ProjectController();
+  const result = await projectController.addSubtitle(c);
+  return c.json(result);
+});

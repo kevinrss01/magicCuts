@@ -4,6 +4,8 @@ export interface UserData {
   name: string;
   avatar: string;
   accessToken: string;
+  tokens: number;
+  is_premium: boolean;
 }
 
 export interface DetectedSegments {

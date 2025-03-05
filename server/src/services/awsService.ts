@@ -1,4 +1,8 @@
-import { HeadObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  HeadObjectCommand,
+  S3Client,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { config } from "../config/config";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "stream";
@@ -124,5 +128,50 @@ export class AwsService {
           reject(new Error(`Failed to upload file: ${error.message}`));
         });
     });
+  }
+
+  /**
+   * Deletes a file from AWS S3 bucket based on its URL
+   * @param fileUrl The complete URL of the file to delete
+   * @returns A promise that resolves to true if deletion was successful
+   */
+  async deleteFileFromAWS(fileUrl: string): Promise<boolean> {
+    try {
+      // Extract the file path from the URL
+      // URL format: https://{bucketName}.s3.{region}.amazonaws.com/{filePath}
+      const urlPattern = new RegExp(
+        `https://${this.s3BucketName}\\.s3\\.${this.s3Region}\\.amazonaws\\.com/(.+)`,
+      );
+      const match = fileUrl.match(urlPattern);
+
+      if (!match || !match[1]) {
+        throw new Error("Invalid file URL format");
+      }
+
+      const filePath = match[1];
+
+      // Check if file exists before attempting to delete
+      const exists = await this.fileExists(filePath);
+      if (!exists) {
+        console.debug("File does not exist in AWS S3");
+        return false;
+      }
+
+      console.debug("Deleting file from AWS S3:", filePath);
+
+      // Send delete command to S3
+      await this.s3client.send(
+        new DeleteObjectCommand({
+          Bucket: this.s3BucketName,
+          Key: filePath,
+        }),
+      );
+
+      console.debug("File successfully deleted from AWS S3");
+      return true;
+    } catch (error: any) {
+      console.error("Error deleting file from AWS S3:", error);
+      throw new Error(`Failed to delete file: ${error.message}`);
+    }
   }
 }
