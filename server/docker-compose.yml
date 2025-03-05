@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: hono-app-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    env_file:
+      - ./.env
+    ports:
+      - "4001:4000"
+    volumes:
+      - ./temp:/app/temp
+    restart: unless-stopped
