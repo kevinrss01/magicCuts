@@ -14,10 +14,16 @@ import { HTTPException } from "hono/http-exception";
  * It generates a URL for Google OAuth via Supabase.
  */
 export const googleLogin = async (c: Context) => {
+  const redirectTo =
+    process.env.NODE_ENV === "production"
+      ? "https://app.magiccuts.pro"
+      : process.env.FRONTEND_URL;
+
+  console.log("redirectTo", redirectTo);
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NODE_ENV === "production" ? "https://app.magiccuts.pro" : process.env.FRONTEND_URL}/login`,
+      redirectTo: `${redirectTo}/login`,
     },
   });
 
