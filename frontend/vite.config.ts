@@ -1,5 +1,5 @@
 import { vitePlugin as remix } from "@remix-run/dev";
-import { defineConfig } from "vite";
+import { defineConfig, Plugin } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 declare module "@remix-run/node" {
@@ -7,6 +7,31 @@ declare module "@remix-run/node" {
     v3_singleFetch: true;
   }
 }
+
+// Custom plugin to filter out sourcemap warnings
+const filterSourcemapWarnings = (): Plugin => {
+  const originalConsoleWarn = console.warn;
+
+  return {
+    name: "filter-sourcemap-warnings",
+    apply: "build",
+    configResolved() {
+      console.warn = function (message, ...args) {
+        if (
+          typeof message === "string" &&
+          message.includes("Error when using sourcemap for reporting an error")
+        ) {
+          return; // Suppress sourcemap warnings
+        }
+        originalConsoleWarn.call(console, message, ...args);
+      };
+    },
+    buildEnd() {
+      // Restore original console.warn
+      console.warn = originalConsoleWarn;
+    },
+  };
+};
 
 export default defineConfig({
   plugins: [
@@ -20,5 +45,15 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
+    filterSourcemapWarnings(),
   ],
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        sourcemapExcludeSources: false,
+      },
+    },
+  },
+  logLevel: "warn", // Suppress info-level logs
 });

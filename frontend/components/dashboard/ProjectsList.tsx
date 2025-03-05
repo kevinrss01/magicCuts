@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { Card, CardBody, Spinner } from "@heroui/react";
 import { useNavigate } from "@remix-run/react";
 import { useAuthStore } from "../../app/stores/authStore";
 import { ProjectAPI } from "../../utils/services/api/ProjectApi";
 import { cn } from "~/cn";
+import { ProjectDocument } from "~/utils/types/supabase";
 
 export const ProjectsList: React.FC = () => {
   const userProjects = useAuthStore((state) => state.userProjects);

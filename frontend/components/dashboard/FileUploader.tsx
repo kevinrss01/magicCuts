@@ -40,19 +40,19 @@ export const FileUploader: React.FC = () => {
   const { userData, userProjects, setUserProjects } = useAuthStore();
 
   // Handle drag events
-  const handleDragIn = (e: React.DragEvent) => {
+  const handleDragIn = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragging(true);
   };
 
-  const handleDragOut = (e: React.DragEvent) => {
+  const handleDragOut = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragging(false);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
@@ -123,7 +123,7 @@ export const FileUploader: React.FC = () => {
   };
 
   // Handle file drop
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragging(false);
@@ -141,7 +141,7 @@ export const FileUploader: React.FC = () => {
   };
 
   // Handle file input change
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     setError(null);
     if (e.target.files && e.target.files.length > 0) {
       const validation = await checkFileConstraints(e.target.files[0]);

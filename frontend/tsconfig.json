@@ -28,6 +28,8 @@
       "~/types/*": ["./utils/types/*"],
       "~/stores/*": ["./app/stores/*"]
     },
+    "sourceMap": true,
+    "inlineSources": true,
 
     // Vite takes care of building everything, not tsc.
     "noEmit": true
