@@ -19,7 +19,10 @@ const filterSourcemapWarnings = (): Plugin => {
       console.warn = function (message, ...args) {
         if (
           typeof message === "string" &&
-          message.includes("Error when using sourcemap for reporting an error")
+          (message.includes(
+            "Error when using sourcemap for reporting an error",
+          ) ||
+            message.includes("Source maps are enabled in production"))
         ) {
           return; // Suppress sourcemap warnings
         }
