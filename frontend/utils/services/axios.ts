@@ -1,8 +1,14 @@
 import axios from "axios";
 
-const baseURLBackEnd = import.meta.env.VITE_BASE_URL_BACKEND;
+const baseURLBackEnd =
+  import.meta.env.VITE_BASE_URL_BACKEND || process.env.VITE_BASE_URL_BACKEND;
 
-const formatUrl = (baseURL: string, url: string) => `${baseURL}/${url}`;
+const formatUrl = (baseURL: string, url: string) => {
+  console.log("baseURL", baseURL);
+  console.log("url", url);
+
+  return `${baseURL}/${url}`;
+};
 const defaultHeaders = { headers: {}, timeout: 3600000 }; // 1 hour
 
 interface Headers {
