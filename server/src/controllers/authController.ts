@@ -17,7 +17,7 @@ export const googleLogin = async (c: Context) => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.FRONTEND_URL}/login`,
+      redirectTo: `${process.env.NODE_ENV === "production" ? "https://app.magiccuts.pro" : process.env.FRONTEND_URL}/login`,
     },
   });
 
@@ -82,6 +82,7 @@ export const signIn = async (c: Context) => {
 };
 
 export const authCallback = async (c: Context) => {
+  console.log("authCallback");
   try {
     const body = await c.req.json();
 
