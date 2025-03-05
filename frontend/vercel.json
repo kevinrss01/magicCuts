@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "buildCommand": "pnpm run build",
+  "framework": "remix",
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }
