@@ -53,7 +53,6 @@ export default defineConfig({
   build: {
     sourcemap: true,
     rollupOptions: {
-      external: ["@iconify/react"],
       output: {
         sourcemapExcludeSources: false,
       },
