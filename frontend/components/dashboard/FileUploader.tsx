@@ -12,8 +12,6 @@ import {
 } from "@heroui/react";
 import { useAuthStore } from "../../app/stores/authStore";
 import { ProjectAPI } from "../../utils/services/api/ProjectApi";
-// @ts-ignore - Ignoring declaration file error since types are installed
-import { v4 as uuidv4 } from "uuid";
 import { ProjectDocument } from "~/utils/types/supabase";
 import { toastMsg } from "~/utils/toasts";
 
@@ -188,7 +186,7 @@ export const FileUploader: React.FC = () => {
 
     try {
       // Create a unique project ID
-      const projectId = uuidv4();
+      const projectId = crypto.randomUUID();
 
       // Create FormData object
       const formData = new FormData();
