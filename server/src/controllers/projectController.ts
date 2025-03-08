@@ -10,6 +10,7 @@ export class ProjectController {
 
   async createProject(c: Context) {
     try {
+      console.debug("Starting controller verification...");
       if (!c.req || !c.req?.formData) {
         console.error("No request provided.");
         throw new HTTPException(400, {
@@ -97,6 +98,9 @@ export class ProjectController {
         });
       }
 
+      console.debug(
+        "Controller verification completed. Starting project creation...",
+      );
       const res = await projectService.createProject({
         file: uploadedVideo,
         fileName,

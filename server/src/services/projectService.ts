@@ -46,11 +46,13 @@ export class ProjectService {
     let originalUrlVideo = "";
 
     try {
+      console.debug("Creating project document...");
       await createProjectDocument({
         userId,
         documentId: projectDocumentId,
         projectName,
       });
+      console.debug("Project document created");
 
       await fsPromises.mkdir("temp", { recursive: true });
       await fsPromises.writeFile(tempFilePath, buffer);
@@ -59,6 +61,7 @@ export class ProjectService {
 
       const awsFilePath = `magicscuts/${userId}/${crypto.randomUUID()}-${fileName}`;
 
+      console.debug("Uploading file to AWS...");
       originalUrlVideo = await awsService.uploadFileFromStreamToAWS(
         stream,
         awsFilePath,
@@ -66,18 +69,23 @@ export class ProjectService {
       console.debug("File uploaded to AWS");
       const transcriptionService = new TranscriptionService();
 
+      console.debug("Transcribing video...");
       const transcription =
         await transcriptionService.transcribeVideo(originalUrlVideo);
+      console.debug("Video transcribed");
 
       const promptService = new PromptService();
 
+      console.debug("Creating prompt...");
       const prompt = promptService.createPromptForViralSegments({
         stringifiedTranscription: transcription,
         desiredSegmentDuration: timeRequested,
       });
+      console.debug("Prompt created");
 
       const openaiService = new OpenaiService();
 
+      console.debug("Requesting to GPT...");
       const bestSegments = await openaiService.requestToGPT({
         prompt,
         model: models.o3Mini,
@@ -86,17 +94,20 @@ export class ProjectService {
         responseFormat: "custom",
         customResponseFormat: responseFormat,
       });
-
+      console.debug("GPT requested");
       const bestSegmentJSON = JSON.parse(bestSegments) as {
         segments: DetectedSegments[];
       };
 
       const ffmpegService = new FfmpegService();
-
+      console.debug("Cutting and transforming segments...");
       const segments = await ffmpegService.cutAndTransformSegments(
         bestSegmentJSON,
         originalUrlVideo,
       );
+
+      console.debug("Segments cut and transformed");
+      console.debug("Saving each short in S3...");
 
       const segmentsWithUrl = await this.saveEachShortInS3(
         segments,
@@ -104,12 +115,15 @@ export class ProjectService {
         fileName,
       );
 
+      console.debug("Segments saved in S3");
+      console.debug("final Update project document...");
       await updateProjectDocument({
         documentId: projectDocumentId,
         detectedSegments: segmentsWithUrl,
         state: "completed",
       });
 
+      console.debug("Project updated");
       return segmentsWithUrl;
     } catch (error) {
       console.error(error);

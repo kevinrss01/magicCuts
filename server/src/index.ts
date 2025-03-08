@@ -30,6 +30,8 @@ app.use("*", async (c, next) => {
   const méthode = c.req.method;
   const url = c.req.url;
 
+  console.debug(`${méthode} ${url}`);
+
   await next();
 });
 

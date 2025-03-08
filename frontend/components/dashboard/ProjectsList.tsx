@@ -12,8 +12,29 @@ export const ProjectsList: React.FC = () => {
   const userProjects = useAuthStore((state) => state.userProjects);
   const setUserProjects = useAuthStore((state) => state.setUserProjects);
   const navigate = useNavigate();
+  const [newProjectIds, setNewProjectIds] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const projects = userProjects || [];
+
+  useEffect(() => {
+    if (!projects.length) return;
+
+    const currentProjectIds = projects.reduce(
+      (acc, project) => {
+        if (project.state === "pending" && !newProjectIds[project.id]) {
+          acc[project.id] = true;
+        }
+        return acc;
+      },
+      {} as { [key: string]: boolean },
+    );
+
+    if (Object.keys(currentProjectIds).length > 0) {
+      setNewProjectIds((prev) => ({ ...prev, ...currentProjectIds }));
+    }
+  }, [projects]);
 
   const checkPendingProjects = useCallback(async () => {
     const pendingProjects = projects.filter(
@@ -55,13 +76,41 @@ export const ProjectsList: React.FC = () => {
     }
   }, [projects, setUserProjects]);
 
+  // Effet pour gérer les vérifications régulières
   useEffect(() => {
-    checkPendingProjects();
+    // Vérification initiale pour les projets existants qui ne sont pas nouveaux
+    const existingPendingProjects = projects.filter(
+      (project) => project.state === "pending" && !newProjectIds[project.id],
+    );
+
+    if (existingPendingProjects.length > 0) {
+      checkPendingProjects();
+    }
 
     const intervalId = setInterval(checkPendingProjects, 5000);
 
     return () => clearInterval(intervalId);
-  }, [checkPendingProjects]);
+  }, [checkPendingProjects, newProjectIds, projects]);
+
+  useEffect(() => {
+    const newProjectsIds = Object.keys(newProjectIds);
+    if (newProjectsIds.length === 0) return;
+
+    const timeoutIds = newProjectsIds.map((projectId) => {
+      return setTimeout(() => {
+        checkPendingProjects();
+        setNewProjectIds((prev) => {
+          const updated = { ...prev };
+          delete updated[projectId];
+          return updated;
+        });
+      }, 10000);
+    });
+
+    return () => {
+      timeoutIds.forEach((id) => clearTimeout(id));
+    };
+  }, [newProjectIds, checkPendingProjects]);
 
   // Render project status icon based on state
   const renderStatusIcon = (state: "pending" | "completed" | "failed") => {
