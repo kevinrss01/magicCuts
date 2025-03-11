@@ -36,7 +36,7 @@ export class TranscriptionService {
         );
 
       if (error) {
-        throw new Error("Error transcribing video");
+        throw new Error("Error transcribing video: " + error);
       }
 
       if (!result) {
